@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class Widget {
 
-	public void task1(Shell shell) {
+	public void addComboBoxItem(Shell shell) {
 		Set<String> comboBoxOptionSet = new HashSet<>();
 		Group group1 = new Group(shell, SWT.SHADOW_IN);
 		group1.setLayout(new GridLayout());
@@ -59,7 +59,7 @@ public class Widget {
 		});
 	}
 
-	public void task2(Shell shell) {
+	public void changeButtons(Shell shell) {
 		Group group = new Group(shell, SWT.SHADOW_IN);
 		group.setText("Group 2");
 		group.setLayout(new GridLayout());
@@ -101,7 +101,7 @@ public class Widget {
 
 	}
 
-	public void task3(Shell shell) {
+	public void selectRadioButton(Shell shell) {
 		Group group = new Group(shell, SWT.SHADOW_IN);
 		group.setText("Group 3");
 		group.setLayout(new GridLayout());
@@ -149,7 +149,7 @@ public class Widget {
 		});
 	}
 
-	public void task4(Shell shell) {
+	public void selectCheckBox(Shell shell) {
 		Group group = new Group(shell, SWT.SHADOW_IN);
 		group.setText("Group 4");
 		group.setLayout(new GridLayout());
@@ -170,7 +170,7 @@ public class Widget {
 		checkBox3.setText("3");
 
 		button.addSelectionListener(new SelectionAdapter() {
-			
+
 			public void widgetSelected(SelectionEvent arg0) {
 				String textField = text.getText();
 				if (textField.contentEquals(checkBox1.getText())) {
@@ -187,11 +187,11 @@ public class Widget {
 				}
 				text.setText("");
 			}
-			
+
 		});
 	}
 
-	public void task5(Shell shell) {
+	public void addTableItem(Shell shell) {
 		Group group = new Group(shell, SWT.SHADOW_IN);
 		group.setText("Group 5");
 		group.setLayout(new GridLayout());
@@ -209,22 +209,22 @@ public class Widget {
 		Button button3 = new Button(group, SWT.PUSH);
 		button3.setText("To the left");
 
-		Table table = new Table(group, SWT.BORDER |SWT.MULTI |SWT.FULL_SELECTION);
-		
+		Table table = new Table(group, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+
 		GridData layoutTable = new GridData();
 		layoutTable.heightHint = 100;
 		layoutTable.widthHint = 120;
 		table.setLayoutData(layoutTable);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
 		TableColumn column1 = new TableColumn(table, SWT.CENTER);
 		column1.setText("Column 1");
 		column1.pack();
 		TableColumn column2 = new TableColumn(table, SWT.CENTER);
 		column2.setText("Column 2");
 		column2.pack();
-		
+
 		button1.addSelectionListener(new SelectionAdapter() {
 
 			public void widgetSelected(SelectionEvent arg0) {
@@ -237,7 +237,8 @@ public class Widget {
 
 			public void widgetSelected(SelectionEvent arg0) {
 				TableItem item = table.getSelection()[0];
-				if(item.getText(0).contentEquals("")) return;
+				if (item.getText(0).contentEquals(""))
+					return;
 				else {
 					item.setText(1, item.getText(0));
 					item.setText(0, "");
@@ -248,13 +249,111 @@ public class Widget {
 
 			public void widgetSelected(SelectionEvent arg0) {
 				TableItem item = table.getSelection()[0];
-				if(item.getText(1).contentEquals("")) return;
+				if (item.getText(1).contentEquals(""))
+					return;
 				else {
-				item.setText(0, item.getText(1));
-				item.setText(1, "");
+					item.setText(0, item.getText(1));
+					item.setText(1, "");
 				}
 			}
 		});
+	}
+
+	public void addRadioButtons(Shell shell) {
+		Group group = new Group(shell, SWT.SHADOW_IN | SWT.V_SCROLL);
+
+		group.setText("Group 6");
+		group.setLayout(new GridLayout());
+		RowData rowData = new RowData();
+		rowData.height = 2000;
+		rowData.width = 2000;
+		group.setLayoutData(rowData);
+
+		Text text = new Text(group, SWT.BORDER);
+		text.setText("4");
+		Button buttonGen = new Button(group, SWT.PUSH);
+		buttonGen.setText("Press to gen");
+
+		Button startButton = new Button(group, SWT.PUSH);
+		startButton.setText("Start");
+
+		Button stopButton = new Button(group, SWT.PUSH);
+		stopButton.setText("Stop");
+
+		Button clearButton = new Button(group, SWT.PUSH);
+		clearButton.setText("Clear");
+
+		Group groupRadios = new Group(group, SWT.SHADOW_IN | SWT.V_SCROLL | SWT.H_SCROLL);
+		groupRadios.setText("Group for RadioButtons");
+		groupRadios.setLayout(new GridLayout());
+
+		int buttonAmount = Integer.parseInt(text.getText());
+		Button[][] radioButton = new Button[buttonAmount][buttonAmount];
+		Group[] groupRadio = new Group[radioButton.length];
+
+		buttonGen.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent arg0) {
+
+				for (int i = 0; i < radioButton.length; i++) {
+					groupRadio[i] = new Group(groupRadios, SWT.SHADOW_IN);
+					// groupRadio[i].setText(""+i);
+					groupRadio[i].setLayout(new GridLayout());
+					groupRadio[i].pack();
+					for (int j = 0; j < radioButton.length; j++) {
+						radioButton[i][j] = new Button(groupRadio[i], SWT.RADIO);
+						// radioButton[i][j].setText(""+i+j);
+					}
+					GridLayout gridLayout = new GridLayout();
+					gridLayout.marginLeft = 10;
+					gridLayout.marginRight = 5;
+					gridLayout.numColumns = radioButton.length;
+					groupRadios.setLayout(gridLayout);
+				}
+				groupRadios.pack();
+				group.pack();
+			}
+
+		});
+
+		startButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent arg0) {
+				for (int i = 0; i < groupRadio.length / 2; i++) {
+					radioButton[i][i].setSelection(true);
+				}
+				int j = groupRadio.length / 2;
+				int k = radioButton.length - 1;
+				if (groupRadio.length % 2 == 0) {
+					while (j < groupRadio.length && k >= radioButton.length / 2) {
+						radioButton[j][k].setSelection(true);
+						j++;
+						k--;
+					}
+				} else {
+					while (j < groupRadio.length && k > radioButton.length / 2) {
+						radioButton[j][k].setSelection(true);
+						j++;
+						k--;
+					}
+					radioButton[groupRadio.length - 1][0].setSelection(true);
+				}
+				/*
+				 * System.out.println("Main thread started..."); Thread myThread = new
+				 * Thread(new MyThread(),"MyThread"); myThread.start();
+				 * 
+				 * System.out.println("Main thread finished...");
+				 */
+				groupRadios.pack();
+				group.pack();
+			}
+
+		});
+		clearButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent arg0) {
+
+			}
+		});
+		groupRadios.pack();
+		group.pack();
 	}
 
 	public static void main(String[] args) {
@@ -262,13 +361,15 @@ public class Widget {
 		Shell shell = new Shell(display);
 		shell.setLayout(new RowLayout());
 		shell.setText("Shell");
-		shell.setSize(500, 500);
+		shell.setSize(1000, 1000);
 		Widget widget = new Widget();
-		widget.task1(shell);
-		widget.task2(shell);
-		widget.task3(shell);
-		widget.task4(shell);
-		widget.task5(shell);
+		widget.addComboBoxItem(shell);
+		widget.changeButtons(shell);
+		widget.selectRadioButton(shell);
+		widget.selectCheckBox(shell);
+		widget.addTableItem(shell);
+		widget.addRadioButtons(shell);
+
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -277,4 +378,20 @@ public class Widget {
 		}
 		display.dispose();
 	}
+}
+
+class MyThread implements Runnable {
+
+	public void run() {
+
+		System.out.printf("%s started... \n", Thread.currentThread().getName());
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			System.out.println("Thread has been interrupted");
+		}
+
+		System.out.printf("%s finished... \n", Thread.currentThread().getName());
+	}
+
 }
