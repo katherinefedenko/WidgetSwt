@@ -25,6 +25,7 @@ public class Widget {
 	int buttonAmount;
 	Button[][] radioButton;
 	Group[] groupRadio;
+	Group groupRadios;
 
 	public void addComboBoxItem(Shell shell) {
 		Set<String> comboBoxOptionSet = new HashSet<>();
@@ -273,7 +274,7 @@ public class Widget {
 		group.setLayoutData(rowData);
 
 		Text text = new Text(group, SWT.BORDER);
-		
+
 		Button buttonGen = new Button(group, SWT.PUSH);
 		buttonGen.setText("Press to gen");
 
@@ -283,103 +284,102 @@ public class Widget {
 		Button stopButton = new Button(group, SWT.PUSH);
 		stopButton.setText("Stop");
 
-		Button clearButton = new Button(group, SWT.PUSH);
-		clearButton.setText("Clear");
-
-		Group groupRadios = new Group(group, SWT.SHADOW_IN | SWT.V_SCROLL | SWT.H_SCROLL);
-		groupRadios.setText("Group for RadioButtons");
-		groupRadios.setLayout(new GridLayout());
-
 		buttonGen.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
+				groupRadios = new Group(group, SWT.SHADOW_IN | SWT.V_SCROLL | SWT.H_SCROLL);
+				groupRadios.setText("Group for RadioButtons");
+
+				GridLayout gridLayoutradios = new GridLayout();
+				gridLayoutradios.marginLeft = 10;
+				gridLayoutradios.marginRight = 5;
+				gridLayoutradios.numColumns = 1;
+				groupRadios.setLayout(gridLayoutradios);
+
 				buttonAmount = Integer.parseInt(text.getText());
 				radioButton = new Button[buttonAmount][buttonAmount];
 				groupRadio = new Group[radioButton.length];
-				for (int i = 0; i < radioButton.length; i++) {
+
+				for (int i = 0; i < buttonAmount; i++) {
 					groupRadio[i] = new Group(groupRadios, SWT.SHADOW_IN);
-					// groupRadio[i].setText(""+i);
 					groupRadio[i].setLayout(new GridLayout());
 					groupRadio[i].pack();
-					for (int j = 0; j < radioButton.length; j++) {
+					for (int j = 0; j < buttonAmount; j++) {
 						radioButton[i][j] = new Button(groupRadio[i], SWT.RADIO);
-						// radioButton[i][j].setText(""+i+j);
 					}
 					GridLayout gridLayout = new GridLayout();
 					gridLayout.marginLeft = 10;
 					gridLayout.marginRight = 5;
 					gridLayout.numColumns = buttonAmount;
 					groupRadios.setLayout(gridLayout);
+					text.setText("");
 				}
 				groupRadios.pack();
 				group.pack();
 			}
-
 		});
 
 		startButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				Runnable radioButtonSelectorRunnable = ()->{
-				for (int i = 0; i < groupRadio.length / 2; i++) {
-					radioButton[i][i].setSelection(true);
-					groupRadios.pack();
-					group.pack();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				int j = groupRadio.length / 2;
-				int k = radioButton.length - 1;
-				if (groupRadio.length % 2 == 0) {
-					while (j < groupRadio.length && k >= radioButton.length / 2) {
-						radioButton[j][k].setSelection(true);
-						j++;
-						k--;
+				Runnable radioButtonSelectorRunnable = () -> {
+					for (int i = 0; i < groupRadio.length / 2; i++) {
+						radioButton[i][i].setSelection(true);
 						groupRadios.pack();
 						group.pack();
 						try {
-							Thread.sleep(100);
+							Thread.sleep(500);
 						} catch (InterruptedException e) {
 							throw new RuntimeException(e);
 						}
 					}
-				} else {
-					while (j < groupRadio.length && k > radioButton.length / 2) {
-						radioButton[j][k].setSelection(true);
-						j++;
-						k--;
+					int j = groupRadio.length / 2;
+					int k = radioButton.length - 1;
+					if (groupRadio.length % 2 == 0) {
+						while (j < groupRadio.length && k >= radioButton.length / 2) {
+							radioButton[j][k].setSelection(true);
+							j++;
+							k--;
+							groupRadios.pack();
+							group.pack();
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e) {
+								throw new RuntimeException(e);
+							}
+						}
+					} else {
+						while (j < groupRadio.length && k > radioButton.length / 2) {
+							radioButton[j][k].setSelection(true);
+							j++;
+							k--;
+							groupRadios.pack();
+							group.pack();
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e) {
+								throw new RuntimeException(e);
+							}
+						}
+						radioButton[groupRadio.length - 1][0].setSelection(true);
 						groupRadios.pack();
 						group.pack();
 						try {
-							Thread.sleep(100);
+							Thread.sleep(500);
 						} catch (InterruptedException e) {
 							throw new RuntimeException(e);
 						}
 					}
-					radioButton[groupRadio.length - 1][0].setSelection(true);
-					groupRadios.pack();
-					group.pack();
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				
 				};
 				Display.getDefault().asyncExec(radioButtonSelectorRunnable);
-				
-				}
+			}
 		});
+		// groupRadios.pack();
+		group.pack();
 		
-		clearButton.addSelectionListener(new SelectionAdapter() {
+		stopButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
 				
 			}
 		});
-		groupRadios.pack();
-		group.pack();
 	}
 
 	public static void main(String[] args) {
@@ -407,14 +407,13 @@ public class Widget {
 }
 
 class MyThread implements Runnable {
-
 	public void run() {
 
 		System.out.printf("%s started... \n", Thread.currentThread().getName());
 		try {
-			while(!Thread.currentThread().isInterrupted())
-			{
+			while (!Thread.currentThread().isInterrupted()) {
 				Thread.sleep(100);
+				continue;
 			}
 		} catch (InterruptedException e) {
 			System.out.println("Thread has been interrupted");
