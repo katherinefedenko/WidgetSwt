@@ -22,6 +22,9 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class Widget {
+	int buttonAmount;
+	Button[][] radioButton;
+	Group[] groupRadio;
 
 	public void addComboBoxItem(Shell shell) {
 		Set<String> comboBoxOptionSet = new HashSet<>();
@@ -270,7 +273,7 @@ public class Widget {
 		group.setLayoutData(rowData);
 
 		Text text = new Text(group, SWT.BORDER);
-		text.setText("4");
+		
 		Button buttonGen = new Button(group, SWT.PUSH);
 		buttonGen.setText("Press to gen");
 
@@ -287,13 +290,11 @@ public class Widget {
 		groupRadios.setText("Group for RadioButtons");
 		groupRadios.setLayout(new GridLayout());
 
-		int buttonAmount = Integer.parseInt(text.getText());
-		Button[][] radioButton = new Button[buttonAmount][buttonAmount];
-		Group[] groupRadio = new Group[radioButton.length];
-
 		buttonGen.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-
+				buttonAmount = Integer.parseInt(text.getText());
+				radioButton = new Button[buttonAmount][buttonAmount];
+				groupRadio = new Group[radioButton.length];
 				for (int i = 0; i < radioButton.length; i++) {
 					groupRadio[i] = new Group(groupRadios, SWT.SHADOW_IN);
 					// groupRadio[i].setText(""+i);
@@ -306,7 +307,7 @@ public class Widget {
 					GridLayout gridLayout = new GridLayout();
 					gridLayout.marginLeft = 10;
 					gridLayout.marginRight = 5;
-					gridLayout.numColumns = radioButton.length;
+					gridLayout.numColumns = buttonAmount;
 					groupRadios.setLayout(gridLayout);
 				}
 				groupRadios.pack();
@@ -317,8 +318,16 @@ public class Widget {
 
 		startButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
+				Runnable radioButtonSelectorRunnable = ()->{
 				for (int i = 0; i < groupRadio.length / 2; i++) {
 					radioButton[i][i].setSelection(true);
+					groupRadios.pack();
+					group.pack();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
 				}
 				int j = groupRadio.length / 2;
 				int k = radioButton.length - 1;
@@ -327,29 +336,46 @@ public class Widget {
 						radioButton[j][k].setSelection(true);
 						j++;
 						k--;
+						groupRadios.pack();
+						group.pack();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
 					}
 				} else {
 					while (j < groupRadio.length && k > radioButton.length / 2) {
 						radioButton[j][k].setSelection(true);
 						j++;
 						k--;
+						groupRadios.pack();
+						group.pack();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
 					}
 					radioButton[groupRadio.length - 1][0].setSelection(true);
+					groupRadios.pack();
+					group.pack();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
 				}
-				/*
-				 * System.out.println("Main thread started..."); Thread myThread = new
-				 * Thread(new MyThread(),"MyThread"); myThread.start();
-				 * 
-				 * System.out.println("Main thread finished...");
-				 */
-				groupRadios.pack();
-				group.pack();
-			}
-
+				
+				};
+				Display.getDefault().asyncExec(radioButtonSelectorRunnable);
+				
+				}
 		});
+		
 		clearButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-
+				
 			}
 		});
 		groupRadios.pack();
@@ -359,7 +385,7 @@ public class Widget {
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);
-		shell.setLayout(new RowLayout());
+		shell.setLayout(new RowLayout(SWT.FILL));
 		shell.setText("Shell");
 		shell.setSize(1000, 1000);
 		Widget widget = new Widget();
@@ -386,7 +412,10 @@ class MyThread implements Runnable {
 
 		System.out.printf("%s started... \n", Thread.currentThread().getName());
 		try {
-			Thread.sleep(500);
+			while(!Thread.currentThread().isInterrupted())
+			{
+				Thread.sleep(100);
+			}
 		} catch (InterruptedException e) {
 			System.out.println("Thread has been interrupted");
 		}
