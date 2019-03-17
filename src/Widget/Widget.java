@@ -26,7 +26,8 @@ public class Widget {
 	Button[][] radioButton;
 	Group[] groupRadio;
 	Group groupRadios;
-
+	boolean stop = false;
+	Thread thread;
 	public void addComboBoxItem(Shell shell) {
 		Set<String> comboBoxOptionSet = new HashSet<>();
 		Group group1 = new Group(shell, SWT.SHADOW_IN);
@@ -319,69 +320,110 @@ public class Widget {
 		});
 
 		startButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent arg0) {
-				Runnable radioButtonSelectorRunnable = () -> {
-					for (int i = 0; i < groupRadio.length / 2; i++) {
-						radioButton[i][i].setSelection(true);
-						groupRadios.pack();
-						group.pack();
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-					}
-					int j = groupRadio.length / 2;
-					int k = radioButton.length - 1;
-					if (groupRadio.length % 2 == 0) {
-						while (j < groupRadio.length && k >= radioButton.length / 2) {
-							radioButton[j][k].setSelection(true);
-							j++;
-							k--;
-							groupRadios.pack();
-							group.pack();
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								throw new RuntimeException(e);
+			public void widgetSelected(SelectionEvent arg0){
+				stop = false;
+				thread = new Thread( new Runnable() {
+	                public void run() {
+	                 {
+	                	for (int i = 0; i < groupRadio.length / 2; i++) {
+	                    try {
+	                        Thread.sleep(1000);
+	                        
+	                    } catch (InterruptedException e1) {
+	                        e1.printStackTrace();
+	                    }
+	                    final int index = i;
+	                    shell.getDisplay().asyncExec( new Runnable() {
+	                        public void run() {
+	                        	if(stop == false) {
+	                            radioButton[index][index].setSelection(true);
+	                        	groupRadios.pack();
+	    						group.pack();
+	                        	}
+	                        	else thread.interrupt();
+	                        }
+	                        
+	                    });
+	                }
+	                	int j = groupRadio.length / 2;
+						int k = radioButton.length - 1;
+						if (groupRadio.length % 2 == 0) {
+							while (j < groupRadio.length && k >= radioButton.length / 2) {								
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e1) {
+									e1.printStackTrace();
+								}
+								final int index_k = k;
+								final int index_j = j;
+								shell.getDisplay().asyncExec( new Runnable() {
+			                        public void run() {
+			                        	if(stop == false) {
+			                        	radioButton[index_j][index_k].setSelection(true);
+			                        	groupRadios.pack();
+			    						group.pack();
+			                        	}
+			                        	else thread.interrupt();
+			                        }
+			                    });
+								j++;
+								k--;
 							}
-						}
-					} else {
-						while (j < groupRadio.length && k > radioButton.length / 2) {
-							radioButton[j][k].setSelection(true);
-							j++;
-							k--;
-							groupRadios.pack();
-							group.pack();
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								throw new RuntimeException(e);
+						} else {
+							while (j < groupRadio.length && k > radioButton.length / 2) {
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e1) {
+									e1.printStackTrace();
+								}
+								final int index_k = k;
+								final int index_j = j;
+								shell.getDisplay().asyncExec( new Runnable() {
+			                        public void run() {
+			                        	if(stop == false) {
+			                        	radioButton[index_j][index_k].setSelection(true);
+			                        	groupRadios.pack();
+			    						group.pack();
+			                        	}
+			                        	else thread.interrupt();
+			                        }
+			                    });
+								j++;
+								k--;
 							}
+							
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e1) {
+								e1.printStackTrace();
+							}
+							shell.getDisplay().asyncExec( new Runnable() {
+		                        public void run() {
+		                        	if(stop == false) {
+		                        	radioButton[groupRadio.length - 1][0].setSelection(true);
+									groupRadios.pack();
+									group.pack();
+		                        	}
+		                        	else thread.interrupt();
+		                        }
+		                    });
 						}
-						radioButton[groupRadio.length - 1][0].setSelection(true);
-						groupRadios.pack();
-						group.pack();
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				};
-				Display.getDefault().asyncExec(radioButtonSelectorRunnable);
+	                 	}
+	                }
+				});
+				thread.start();
 			}
 		});
-		// groupRadios.pack();
+				
 		group.pack();
 		
 		stopButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent arg0) {
-				
+				stop = true;
 			}
 		});
 	}
-
+	
 	public static void main(String[] args) {
 		Display display = new Display();
 		Shell shell = new Shell(display);
@@ -404,22 +446,4 @@ public class Widget {
 		}
 		display.dispose();
 	}
-}
-
-class MyThread implements Runnable {
-	public void run() {
-
-		System.out.printf("%s started... \n", Thread.currentThread().getName());
-		try {
-			while (!Thread.currentThread().isInterrupted()) {
-				Thread.sleep(100);
-				continue;
-			}
-		} catch (InterruptedException e) {
-			System.out.println("Thread has been interrupted");
-		}
-
-		System.out.printf("%s finished... \n", Thread.currentThread().getName());
-	}
-
 }
